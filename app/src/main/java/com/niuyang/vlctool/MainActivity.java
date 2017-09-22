@@ -64,7 +64,7 @@ public class MainActivity extends Activity {
     private String tag = "N5";
     private String server_url = "http://wsn.nwpu.info:3000/image/";
     private String capture_mode = "single";
-    private String store_to_gallery = "0";
+    private String store_to_gallery = "1";
 
     private ImageView btnCapture;
     private ImageView btnSetting;
@@ -154,7 +154,7 @@ public class MainActivity extends Activity {
                                     }
                                     responseReader.close();
                                     JSONObject jsonObject = new JSONObject(strb.toString());
-                                    bundle.putString("msg",jsonObject.getString("success")+jsonObject.getString("message"));
+                                    bundle.putString("msg",jsonObject.getString("success")+"   "+jsonObject.getString("message")+"\n");
                                     msg.setData(bundle);
                                     uploadHandler.sendMessage(msg);
                                 }
@@ -176,7 +176,7 @@ public class MainActivity extends Activity {
         public void handleMessage(Message msg){
             if(msg.what==0x11){
                 Bundle bundle=msg.getData();
-                text.append("\n"+bundle.getString("msg"));
+                text.append(bundle.getString("msg"));
             }
         }
     };
@@ -204,8 +204,8 @@ public class MainActivity extends Activity {
             e.printStackTrace();
         }
         range = mCameraCharacteristics.get(CameraCharacteristics.SENSOR_INFO_SENSITIVITY_RANGE);
-        shortISO = range.getLower();
-        longISO = range.getUpper();
+        longISO = range.getLower();
+        shortISO = range.getUpper();
 
         //拍照
         sexposure_time = Long.parseLong(exposure_duration)*1000;
@@ -219,8 +219,8 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View v) {
                 if (capture_mode.equals("single")){
-                    takePicture(v,sexposure_time);
-                    takePicture(v,lexposure_time);
+                    takePicture(v,sexposure_time,shortISO);
+                    takePicture(v,lexposure_time,longISO);
                 }else{
                     //连拍逻辑
                 }
@@ -430,14 +430,15 @@ public class MainActivity extends Activity {
         }
     }
 
-    public void takePicture(View view,long exposure_time) {
-        lockFocus(exposure_time);
+    public void takePicture(View view,long exposure_time,int iso) {
+        lockFocus(exposure_time,iso);
     }
 
-    private void lockFocus(long exposure_time) {
+    private void lockFocus(long exposure_time,int iso) {
         try {
             mCaptureRequestBuilder.set(CaptureRequest.CONTROL_AF_TRIGGER, CameraMetadata.CONTROL_AF_TRIGGER_START);
-            mCaptureRequestBuilder.set(CaptureRequest.SENSOR_EXPOSURE_TIME, exposure_time);
+//            mCaptureRequestBuilder.set(CaptureRequest.SENSOR_EXPOSURE_TIME, exposure_time);
+//            mCaptureRequestBuilder.set(CaptureRequest.SENSOR_SENSITIVITY,iso);
             mCameraCaptureSession.capture(mCaptureRequestBuilder.build(), mCaptureCallback, mCameraHandler);
         } catch (CameraAccessException e) {
             e.printStackTrace();
