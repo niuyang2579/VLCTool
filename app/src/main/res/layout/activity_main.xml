@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context="com.niuyang.vlctool.MainActivity">
+
+    <TextureView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/textureView"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"/>
+
+    <ImageView
+            android:id="@+id/btn_setting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="20dip"
+            android:background="@drawable/btn_setting"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="28dp"
+            android:layout_marginTop="14dp"/>
+    <ImageView
+            android:id="@+id/photoButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/btn_capture"
+            android:layout_alignParentBottom="true" android:layout_centerHorizontal="true"/>
+    <TextView
+            android:text="Infomation:"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/text"
+            android:layout_above="@+id/photoButton" android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"/>
+</RelativeLayout>
