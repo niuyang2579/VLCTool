@@ -150,11 +150,11 @@ public class MainActivity extends Activity {
                                     String readLine=new String();
                                     BufferedReader responseReader=new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream()));
                                     while((readLine=responseReader.readLine())!=null){
-                                        strb.append(readLine).append("\n");
+                                        strb.append(readLine);
                                     }
                                     responseReader.close();
                                     JSONObject jsonObject = new JSONObject(strb.toString());
-                                    bundle.putString("msg",jsonObject.getString("success")+"\n"+jsonObject.getString("message"));
+                                    bundle.putString("msg",jsonObject.getString("success")+jsonObject.getString("message"));
                                     msg.setData(bundle);
                                     uploadHandler.sendMessage(msg);
                                 }
@@ -176,7 +176,7 @@ public class MainActivity extends Activity {
         public void handleMessage(Message msg){
             if(msg.what==0x11){
                 Bundle bundle=msg.getData();
-                text.append(bundle.getString("msg"));
+                text.append("\n"+bundle.getString("msg"));
             }
         }
     };
