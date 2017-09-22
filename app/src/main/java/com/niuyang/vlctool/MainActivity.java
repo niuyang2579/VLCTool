@@ -176,7 +176,7 @@ public class MainActivity extends Activity {
         public void handleMessage(Message msg){
             if(msg.what==0x11){
                 Bundle bundle=msg.getData();
-                text.setText("Information:"+"\n"+bundle.getString("msg"));
+                text.append(bundle.getString("msg"));
             }
         }
     };
