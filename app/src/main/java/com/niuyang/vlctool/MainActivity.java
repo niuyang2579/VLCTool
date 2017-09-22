@@ -61,10 +61,10 @@ public class MainActivity extends Activity {
 
     //实验参数
     private String exposure_duration = "100";
-    private String tag = "0";
+    private String tag = "N5";
     private String server_url = "http://wsn.nwpu.info:3000/image/";
     private String capture_mode = "single";
-    private String store_to_gallery = "1";
+    private String store_to_gallery = "0";
 
     private ImageView btnCapture;
     private ImageView btnSetting;
