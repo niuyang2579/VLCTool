@@ -36,6 +36,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import javax.security.auth.callback.Callback;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -60,7 +61,7 @@ public class MainActivity extends Activity {
     }
 
     //实验参数
-    private String exposure_duration = "100";
+    private String exposure_duration = "200";
     private String tag = "N5";
     private String server_url = "http://wsn.nwpu.info:3000/image/";
     private String capture_mode = "single";
@@ -84,12 +85,15 @@ public class MainActivity extends Activity {
 
     private int shortISO;
     private int longISO;
+    private long shorttime;
+    private long longtime;
     private long sexposure_time;
     private long lexposure_time;
     private TextView text;
     private static double[][] brightness = new double[2][];
     private double[] result;
-    private Range<Integer> range;
+    private Range<Integer> isorange;
+    private Range<Long> timerange;
 
     public Handler myHandler=new Handler(){
         @Override
@@ -203,13 +207,15 @@ public class MainActivity extends Activity {
         } catch (CameraAccessException e) {
             e.printStackTrace();
         }
-        range = mCameraCharacteristics.get(CameraCharacteristics.SENSOR_INFO_SENSITIVITY_RANGE);
-        longISO = range.getLower();
-        shortISO = range.getUpper();
+        isorange = mCameraCharacteristics.get(CameraCharacteristics.SENSOR_INFO_SENSITIVITY_RANGE);
+        longISO = isorange.getLower();
+        shortISO = isorange.getUpper();
+
+        timerange = mCameraCharacteristics.get(CameraCharacteristics.SENSOR_INFO_EXPOSURE_TIME_RANGE);
+        shorttime = timerange.getLower();
+        longtime = timerange.getUpper();
 
         //拍照
-        sexposure_time = Long.parseLong(exposure_duration)*1000;
-        lexposure_time = sexposure_time * (shortISO / longISO);
 
 //        final Drawable capture = getResources().getDrawable(R.drawable.btn_capture,null);
 //        final Drawable stop = getResources().getDrawable(R.drawable.btn_stopcapture,null);
@@ -218,6 +224,8 @@ public class MainActivity extends Activity {
         btnCapture.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                sexposure_time = Long.parseLong(exposure_duration)*10;
+                lexposure_time = sexposure_time * (shortISO / longISO);
                 if (capture_mode.equals("single")){
                     takePicture(v,sexposure_time,shortISO);
                     takePicture(v,lexposure_time,longISO);
@@ -239,6 +247,8 @@ public class MainActivity extends Activity {
                 intent.putExtra("server_url",server_url);
                 intent.putExtra("capture_mode",capture_mode);
                 intent.putExtra("store_to_gallery",store_to_gallery);
+                intent.putExtra("shorttime",shorttime);
+                intent.putExtra("longtime",longtime);
                 startActivityForResult(intent,1);
             }
         });
@@ -431,37 +441,52 @@ public class MainActivity extends Activity {
     }
 
     public void takePicture(View view,long exposure_time,int iso) {
-        lockFocus(exposure_time,iso);
+        capture(exposure_time,iso);
     }
-
-    private void lockFocus(long exposure_time,int iso) {
-        try {
-            mCaptureRequestBuilder.set(CaptureRequest.CONTROL_AF_TRIGGER, CameraMetadata.CONTROL_AF_TRIGGER_START);
-//            mCaptureRequestBuilder.set(CaptureRequest.SENSOR_EXPOSURE_TIME, exposure_time);
+//    private void lockFocus(long exposure_time,int iso) {
+//        try {
+//            mCaptureRequestBuilder.set(CaptureRequest.CONTROL_AF_TRIGGER, CameraMetadata.CONTROL_AF_TRIGGER_START);
 //            mCaptureRequestBuilder.set(CaptureRequest.SENSOR_SENSITIVITY,iso);
-            mCameraCaptureSession.capture(mCaptureRequestBuilder.build(), mCaptureCallback, mCameraHandler);
-        } catch (CameraAccessException e) {
-            e.printStackTrace();
-        }
-    }
+//            mCaptureRequestBuilder.set(CaptureRequest.SENSOR_EXPOSURE_TIME, exposure_time);
+//            Toast.makeText(getApplicationContext(), "exposure:" + exposure_time, Toast.LENGTH_SHORT).show();
+//            mCameraCaptureSession.capture(mCaptureRequestBuilder.build(), mCaptureCallback, mCameraHandler);
+//        } catch (CameraAccessException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
-    private CameraCaptureSession.CaptureCallback mCaptureCallback = new CameraCaptureSession.CaptureCallback() {
-        @Override
-        public void onCaptureProgressed(CameraCaptureSession session, CaptureRequest request, CaptureResult partialResult) {
-        }
 
-        @Override
-        public void onCaptureCompleted(CameraCaptureSession session, CaptureRequest request, TotalCaptureResult result) {
-            capture();
-        }
-    };
+//    private CameraCaptureSession.CaptureCallback mCaptureCallback = new CameraCaptureSession.CaptureCallback() {
+//
+//
+//        @Override
+//        public void onCaptureProgressed(CameraCaptureSession session, CaptureRequest request, CaptureResult partialResult) {
+//        }
+//
+//        @Override
+//        public void onCaptureCompleted(CameraCaptureSession session, CaptureRequest request, TotalCaptureResult result) {
+//            capture();
+//        }
+//    };
 
-    private void capture() {
+    private void capture(long exposure_time,int iso) {
         try {
             final CaptureRequest.Builder mCaptureBuilder = mCameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
             int rotation = getWindowManager().getDefaultDisplay().getRotation();
             mCaptureBuilder.addTarget(mImageReader.getSurface());
             mCaptureBuilder.set(CaptureRequest.JPEG_ORIENTATION, ORIENTATION.get(rotation));
+
+            mCaptureBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);//
+            mCaptureBuilder.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_OFF);//
+
+            //mCaptureBuilder.set(CaptureRequest.CONTROL_AF_TRIGGER, CameraMetadata.CONTROL_AF_TRIGGER_START);
+            mCaptureBuilder.set(CaptureRequest.SENSOR_SENSITIVITY,iso);
+            mCaptureBuilder.set(CaptureRequest.SENSOR_EXPOSURE_TIME, exposure_time);
+
+            mCaptureBuilder.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO);//
+
+            Toast.makeText(getApplicationContext(), "exposure:" + exposure_time, Toast.LENGTH_SHORT).show();
+
             CameraCaptureSession.CaptureCallback CaptureCallback = new CameraCaptureSession.CaptureCallback() {
                 @Override
                 public void onCaptureCompleted(CameraCaptureSession session, CaptureRequest request, TotalCaptureResult result) {

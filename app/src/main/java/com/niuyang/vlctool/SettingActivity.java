@@ -15,7 +15,7 @@ public class SettingActivity extends AppCompatActivity {
     private EditText etserver_url;
     private Spinner spcapture_mode;
     private Switch swstore_to_gallery;
-
+    private TextView txt;
 
     //设置值
     private String strexposure_duration;
@@ -23,6 +23,8 @@ public class SettingActivity extends AppCompatActivity {
     private String strserver_url;
     private String strcapture_mode;
     private String strstore_to_gallery;
+    private long shorttime;
+    private long longtime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +38,8 @@ public class SettingActivity extends AppCompatActivity {
         etserver_url=(EditText)findViewById(R.id.server_url);
         spcapture_mode=(Spinner)findViewById(R.id.mode_select);
         swstore_to_gallery=(Switch)findViewById(R.id.store_to_gallery);
+        txt=(TextView)findViewById(R.id.txtex);
+
 
         //获取数据
         Intent intent = getIntent();
@@ -44,8 +48,11 @@ public class SettingActivity extends AppCompatActivity {
         strserver_url= intent.getStringExtra("server_url").toString();
         strcapture_mode= intent.getStringExtra("capture_mode").toString();
         strstore_to_gallery= intent.getStringExtra("store_to_gallery").toString();
+        shorttime = intent.getLongExtra("shorttime",0);
+        longtime = intent.getLongExtra("longtime",0);
 
         //初始化
+        txt.append("("+shorttime/1000+"~"+longtime/1000+")");
         etexposure_duration.setText(strexposure_duration);
         ettag.setText(strtag);
         etserver_url.setText(strserver_url);

@@ -25,6 +25,7 @@
             android:id="@+id/mode_select"
             android:entries="@array/modes"/>
     <TextView
+            android:id="@+id/txtex"
             android:text="Exposure Duration "
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"/>
